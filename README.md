@@ -74,9 +74,9 @@ Each resource demonstrates how the reporting model integrates with Microsoft Fab
 
 | Dashboard | Description |
 |------------|--------------|
-| ![Overview](powerbi/Overview.png) | Executive-level KPIs and trends |
-| ![Analysis](powerbi/Analysis.png) | Detailed financial or operational analysis |
-| ![Drilldown](powerbi/Drilldown.png) | Entity-level or regional performance |
+| ![Overview](powerbi/visuals/Overview.png) | Executive-level KPIs and trends |
+| ![Analysis](powerbi/visuals/Analysis.png) | Detailed financial or operational analysis |
+| ![Drilldown](powerbi/visuals/Drilldown.png) | Entity-level or regional performance |
 
 ---
 
