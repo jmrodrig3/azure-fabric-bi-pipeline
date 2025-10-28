@@ -56,6 +56,18 @@ Aggregates and computes summary tables for reporting.
 Connects to Fabric Gold tables via Dataflow Gen2 to generate dashboards.  
 [Power Query → `fabric/Dataflow.pq`](fabric/Dataflow.pq)
 
+## Power BI Modeling & Query Layer
+
+This layer connects curated **Gold** and **Warehouse** tables from Microsoft Fabric to Power BI through **Dataflow Gen2**, enabling a semantic model that supports consistent KPIs and efficient refresh operations.
+
+| Resource | Description |
+|-----------|--------------|
+| [Sample DAX Measures](powerbi/modeling/sample_dax_measures.md) | Core business calculations used in Power BI reports (e.g., Total Settlement, Interchange %, Transaction Cost Margin, YoY ARR Growth). |
+| [Sample Power Query (M)](powerbi/modeling/sample_powerquery_m.md) | Dataflow Gen2 query examples demonstrating filtering, shaping, and incremental refresh logic. |
+| [Dataflow Query Montage](powerbi/modeling/dataflow_queries.png) | Visual overview of Power BI dataflows connecting to Fabric Lakehouse and Warehouse tables. |
+
+Each resource demonstrates how the reporting model integrates with Microsoft Fabric’s transformation layers while maintaining semantic consistency and reusable logic across dashboards.
+
 ---
 
 ## Example Dashboards
