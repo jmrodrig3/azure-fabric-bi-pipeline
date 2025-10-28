@@ -50,11 +50,11 @@ Processes raw data in three stages:
 
 ### 4. Microsoft Fabric Warehouse (Computation Layer)
 Aggregates and computes summary tables for reporting.  
-[SQL Script → `fabric/warehouse/summary_table.sql`](fabric/warehouse/summary_table.sql)
+[SQL Script → `fabric/summary_table.sql`](fabric/summary_table.sql)
 
 ### 5. Power BI (Visualization Layer)
 Connects to Fabric Gold tables via Dataflow Gen2 to generate dashboards.  
-[Power Query → `fabric/dataflow-gen2/Dataflow.pq`](fabric/dataflow-gen2/Dataflow.pq)
+[Power Query → `fabric/Dataflow.pq`](fabric/Dataflow.pq)
 
 ---
 
