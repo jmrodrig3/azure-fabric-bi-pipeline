@@ -46,7 +46,7 @@ Processes raw data in three stages:
 - **Bronze**: Raw ingestion from JSON files  
 - **Silver**: Cleansed, deduplicated, and standardized data  
 - **Gold**: Curated tables ready for analytics  
-[Scripts → `fabric/lakehouse/`](fabric/lakehouse)
+[Scripts → `fabric/`](fabric/)
 
 ### 4. Microsoft Fabric Warehouse (Computation Layer)
 Aggregates and computes summary tables for reporting.  
