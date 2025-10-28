@@ -14,7 +14,7 @@ The solution replaces manual reporting workflows with a scalable, reliable, and 
 
 ## Architecture
 
-![Architecture Diagram](docs/architecture-diagram.png)
+![Architecture Diagram](docs/architecture-diagram_v2.png)
 
 **Flow:**  
 Azure Function → Azure Blob Storage → Fabric Lakehouse (Bronze/Silver/Gold) → Fabric Warehouse → Power BI Dataflow → Power BI Dashboard
