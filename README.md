@@ -62,7 +62,7 @@ Connects to Fabric Gold tables via Dataflow Gen2 to generate dashboards.
 
 | Dashboard | Description |
 |------------|--------------|
-| ![Overview](powerbi/executive_Overview.png) | Executive-level KPIs and trends |
+| ![Overview](powerbi/Overview.png) | Executive-level KPIs and trends |
 | ![Analysis](powerbi/Analysis.png) | Detailed financial or operational analysis |
 | ![Drilldown](powerbi/Drilldown.png) | Entity-level or regional performance |
 
