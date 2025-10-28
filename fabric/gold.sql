@@ -9,7 +9,7 @@ CREATE OR REPLACE TABLE gold.fact_transactions
 USING DELTA
 AS
 SELECT
-  t.transaction_id,
+  t.transaction_id, 
   t.merchant_id,
   t.activity_date,
   t.settlement_amount,
