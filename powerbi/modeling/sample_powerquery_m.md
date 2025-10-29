@@ -1,28 +1,24 @@
-// ============================================================================
-// SAMPLE POWER QUERY (M) — SANITIZED & PARAMETERIZED
-// Four independent queries. Paste each into Power Query’s Advanced Editor as needed.
-// Replace parameter defaults or bind them to Dataflow/PBIX Parameters.
-// ============================================================================
+# Sample Power Query (M) — Sanitized & Parameterized
 
+> **Overview:**
+> This collection includes four independent Power Query (M) examples, fully sanitized and parameterized for sharing.
+> Each section can be pasted into the **Advanced Editor** in Power BI Desktop or a Fabric Dataflow.
+> Replace parameter defaults or bind them to parameters in your workspace as needed.
 
-/*-----------------------------------------------------------------------------
-SECTION 1 — PAYMENTS / PROFITABILITY (EXCEL FROM SHAREPOINT)
-    - Loads a worksheet from SharePoint (parameterized URL/path)
-    - Neutral column names and constants
-    - Optional join to a generic DimCustomer table
------------------------------------------------------------------------------*/
+---
 
-// Parameters (define these as PBIX/Dataflow parameters where possible)
+## Section 1 — Payments / Profitability (Excel from SharePoint)
+
+Loads a worksheet from SharePoint with parameterized URL/path, neutral column names, and optional join to a generic `DimCustomer` table.
+
+```m
+// Parameters
 SiteUrl   = try SiteUrl   otherwise "https://your-tenant.sharepoint.com/sites/analytics",
 FilePath  = try FilePath  otherwise "Shared Documents/Data/PayFac/Profitability_Summary.xlsx",
 SheetName = try SheetName otherwise "Updated Variance by MID",
 
 let
-    Source = Excel.Workbook(
-        Web.Contents(SiteUrl, [RelativePath = FilePath]),
-        null,
-        true
-    ),
+    Source = Excel.Workbook(Web.Contents(SiteUrl, [RelativePath = FilePath]), null, true),
     RawSheet  = Source{[Item = SheetName, Kind = "Sheet"]}[Data],
     Promoted  = Table.PromoteHeaders(RawSheet, [PromoteAllScalars = true]),
 
@@ -56,15 +52,14 @@ let
         {"Payment Method","Gross Txn Volume","Txn Count","Net Txn Count","Gross Commission","Interchange","Other Fees","Net Commission"}
     ),
 
-    // Join to a neutral DimCustomer table (rename or remove if not needed)
-    // Expect an in-model query/table named DimCustomer with key [BusinessKey]
+    // Optional join to a generic DimCustomer table
     Merged   = Table.NestedJoin(ReplaceNulls, {"BusinessKey"}, DimCustomer, {"BusinessKey"}, "DimCustomer", JoinKind.LeftOuter),
     Expanded = Table.ExpandTableColumn(Merged, "DimCustomer", {"ParentName"}, {"ParentName"}),
 
-    // Generic product id, no brand code
+    // Generic product ID
     AddProductId = Table.AddColumn(Expanded, "ProductID", each [Business Unit] & "-" & "ProductA", type text),
 
-    // Drop columns you don’t want to ship
+    // Drop unnecessary columns
     Removed = Table.RemoveColumns(AddProductId, {"Division","Business Unit","Account ID"}),
 
     FinalTypes = Table.TransformColumnTypes(
@@ -91,16 +86,16 @@ let
     )
 in
     FinalTypes
+```
 
+---
 
+## Section 2 — Date Dimension (Generated Calendar)
 
-/*-----------------------------------------------------------------------------
-SECTION 2 — DATE DIMENSION (GENERATED CALENDAR)
-    - Pure M calendar (no external files)
-    - Adds Year, Quarter, Month Short, Month_Year, EndOfMonth
------------------------------------------------------------------------------*/
+A self-contained Power Query calendar that builds a complete date table for modeling, with fields like `Year`, `Quarter`, `Month_Year`, and `EndOfMonth`.
 
-// Parameters for calendar bounds
+```m
+// Parameters
 StartDate = try StartDate otherwise #date(2021, 1, 1),
 EndDate   = try EndDate   otherwise #date(2026, 12, 31),
 
@@ -119,33 +114,26 @@ let
     AddEOM       = Table.AddColumn(AddMonthYear, "EndOfMonth", each Date.EndOfMonth([Date]), type date)
 in
     AddEOM
+```
 
+---
 
+## Section 3 — FX Rates (Excel from SharePoint, Dynamic Unpivot)
 
-/*-----------------------------------------------------------------------------
-SECTION 3 — FX RATES (EXCEL FROM SHAREPOINT, DYNAMIC UNPIVOT)
-    - Parameterized SharePoint path
-    - Dynamically unpivots date-like columns to Month / RateToUSD
------------------------------------------------------------------------------*/
+Fetches FX rate data from Excel stored on SharePoint, automatically unpivots monthly columns into a normalized table.
 
+```m
 // Parameters
 FX_SiteUrl  = try FX_SiteUrl  otherwise "https://your-tenant.sharepoint.com/sites/analytics",
 FX_FilePath = try FX_FilePath otherwise "Shared Documents/Data/Reference/FX_Rates.xlsx",
 FX_Sheet    = try FX_Sheet    otherwise "FXTable",
 
 let
-    Source = Excel.Workbook(
-        Web.Contents(FX_SiteUrl, [RelativePath = FX_FilePath]),
-        null,
-        true
-    ),
+    Source = Excel.Workbook(Web.Contents(FX_SiteUrl, [RelativePath = FX_FilePath]), null, true),
     Raw       = Source{[Item = FX_Sheet, Kind = "Sheet"]}[Data],
     Promoted  = Table.PromoteHeaders(Raw, [PromoteAllScalars=true]),
 
-    // Coerce types defensively first
     TypeCoerce = Table.TransformColumnTypes(Promoted, {}, "en-US"),
-
-    // Identify columns whose names parse as dates (these will be unpivoted)
     ColumnsToUnpivot =
         List.Select(
             Table.ColumnNames(TypeCoerce),
@@ -160,7 +148,6 @@ let
 
     MonthTyped = Table.TransformColumnTypes(Unpivoted, {{"Month", type date}}, "en-US"),
 
-    // Normalize Currency/Rate column names
     Normalize =
         let
             WithCurrency =
@@ -187,44 +174,34 @@ let
     )
 in
     FinalTypes
+```
 
+---
 
+## Section 4 — Subscriptions (Excel from SharePoint, Dynamic Unpivot)
 
-/*-----------------------------------------------------------------------------
-SECTION 4 — SUBSCRIPTIONS (EXCEL FROM SHAREPOINT, DYNAMIC UNPIVOT)
-    - Parameterized SharePoint path
-    - Unpivots month columns to Date/MRR_Normalized_Local
-    - Neutral metadata fields
------------------------------------------------------------------------------*/
+Transforms wide monthly subscription data into a normalized transactional model with neutralized metadata.
 
+```m
 // Parameters
 Subs_SiteUrl  = try Subs_SiteUrl  otherwise "https://your-tenant.sharepoint.com/sites/analytics",
 Subs_FilePath = try Subs_FilePath otherwise "Shared Documents/Data/Subscriptions/Subscriptions_Accrual.xlsx",
 Subs_Sheet    = try Subs_Sheet    otherwise "Summary Subscriptions",
 
 let
-    Source = Excel.Workbook(
-        Web.Contents(Subs_SiteUrl, [RelativePath = Subs_FilePath]),
-        null,
-        true
-    ),
+    Source = Excel.Workbook(Web.Contents(Subs_SiteUrl, [RelativePath = Subs_FilePath]), null, true),
     RawSheet = Source{[Item = Subs_Sheet, Kind = "Sheet"]}[Data],
     Promoted = Table.PromoteHeaders(RawSheet, [PromoteAllScalars=true]),
 
-    // Basic typing; add/modify as your sheet requires
     Typed = Table.TransformColumnTypes(
         Promoted,
         {{"Account", type text}, {"ERP_ID", type text}, {"Product", type text}}
     ),
 
-    // Remove totals/blank rows
     Filtered = Table.SelectRows(Typed, each [Account] <> null and [Account] <> "Total" and [Product] <> null),
-
-    // Use ERP_ID if present; else fallback to Account
     AddCustomerKey = Table.AddColumn(Filtered, "CustomerKey", each if [ERP_ID] = null then [Account] else [ERP_ID], type text),
     RemoveERP      = Table.RemoveColumns(AddCustomerKey, {"ERP_ID"}),
 
-    // Dynamically detect month columns (header text that parses to date)
     DateCols =
         List.Select(
             Table.ColumnNames(RemoveERP),
@@ -233,13 +210,11 @@ let
 
     Unpivoted    = Table.Unpivot(RemoveERP, DateCols, "Date", "Amount"),
     ReplaceNulls = Table.ReplaceValue(Unpivoted, null, 0, Replacer.ReplaceValue, {"Amount"}),
-    Typed2       = Table.TransformColumnTypes(ReplaceNulls, {{"Date", type date}, {"Amount", type number}, {"CustomerKey", type text}, {"Product", type text}, {"Account", type text}}),
+    Typed2       = Table.TransformColumnTypes(Unpivoted, {{"Date", type date}, {"Amount", type number}}),
 
-    // Normalize to EOM and neutral names
     WithEOM   = Table.TransformColumns(Typed2, {{"Date", Date.EndOfMonth, type date}}),
     Renamed   = Table.RenameColumns(WithEOM, {{"Account","CustomerName"}, {"Amount","MRR_Normalized_Local"}}),
 
-    // Neutral metadata fields
     AddBrand   = Table.AddColumn(Renamed, "Brand", each "Brand A", type text),
     AddCur     = Table.AddColumn(AddBrand, "Currency", each "USD", type text),
     AddRevType = Table.AddColumn(AddCur, "RevenueType", each "Subscription", type text),
@@ -262,3 +237,4 @@ let
     )
 in
     FinalTypes
+```
